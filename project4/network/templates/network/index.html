@@ -1,5 +1,103 @@
 {% extends "network/layout.html" %}
 
 {% block body %}
+    <div  class="container">
+
+   
     TODO
+    <h1>All Posts</h1>
+
+    <div id="compose-view" class="border border-1 p-2 mb-2 rounded">
+        <h3>New Post</h3>
+        <form id="compose-form" action="/" method="POST">      
+            {% csrf_token %}     
+            <div class="form-group">
+                <textarea rows="5 " name="content" class="w-100"></textarea>
+            </div>        
+            <button class="btn btn-primary" type="submit">Post</button>
+            {% if messages %}
+    <ul>
+        {% for message in messages %}
+            <li class="{% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</li>
+        {% endfor %}
+    </ul>
+  {% endif %}
+        </form>
+    </div>
+
+
+    <div id="posts-container">
+        <h3>Showing the Posts</h3>
+      {% for post in posts %}
+        <ul>
+            <li>{{post.content}}</li>
+        </ul>
+      {% endfor %}
+    </div>
+
+
+<!-- 
+<div id="pagination">
+    <button id="previous" disabled>Previous</button>
+    <button id="next">Next</button>
+</div>
+ </div>
+<script>
+let currentPage = 1;
+
+// Load posts for the given page
+function loadPosts(page = 1) {
+    fetch(`/posts?page=${page}`)
+        .then(response => response.json())
+        .then(data => {
+            const container = document.getElementById("posts-container");
+            container.innerHTML = ""; // Clear the container
+
+            // Populate posts
+            data.posts.forEach(post => {
+                const postDiv = document.createElement("div");
+                postDiv.innerHTML = `
+                    <p>${post.content}</p>
+                    <small>By ${post.user} at ${post.timestamp}</small>
+                    <button onclick="toggleLike(${post.id})">Like (${post.likes})</button>
+                `;
+                container.appendChild(postDiv);
+            });
+
+            // Update pagination buttons
+            currentPage = page;
+            document.getElementById("previous").disabled = !data.has_previous;
+            document.getElementById("next").disabled = !data.has_next;
+        });
+}
+
+// Handle liking/unliking posts
+function toggleLike(postId) {
+    fetch(`/like/${postId}`, {
+        method: "PUT"
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                loadPosts(currentPage); // Reload posts after liking/unliking
+            }
+        });
+}
+
+// Add event listeners to pagination buttons
+document.getElementById("previous").addEventListener("click", () => {
+    if (currentPage > 1) loadPosts(currentPage - 1);
+});
+
+document.getElementById("next").addEventListener("click", () => {
+    loadPosts(currentPage + 1);
+});
+
+// Load the first page of posts on page load
+document.addEventListener("DOMContentLoaded", () => {
+    loadPosts();
+});
+</script> -->
 {% endblock %}
+
+
