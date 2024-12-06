@@ -10,8 +10,22 @@ from django.contrib import messages
 from .models import User, Post, Follow
 
 
-def index(request):
-    return render(request, "network/index.html")
+def index(request):   
+    if request.method == "POST":
+        content = request.POST["content"]
+        if content.strip():
+            post = Post(user=request.user, content=content)
+            post.save()
+            return HttpResponseRedirect(reverse("index"))
+
+    posts = Post.objects.all().order_by("-timestamp")
+    # paginator = Paginator(posts, 10)  # 10 posts per page
+    # page_number = request.GET.get("page", 1)
+    # page_obj = paginator.get_page(page_number)
+
+    return render(request, "network/index.html", {
+        "posts": posts
+    })
 
 
 def login_view(request):
@@ -67,29 +81,27 @@ def register(request):
 
 #  --------  >>>>>>  Adding the new functions
 
-@login_required
-def new_post(request):
-    if request.method == "POST":
-        content = request.POST.get("content")
-        if content.strip():
-            Post.objects.create(user=request.user, content=content)
-            messages.success(request, "Post created successfully.")
-            return JsonResponse({"message": "Post created successfully."}, status=201)
-        messages.error(request, "Content cannot be empty.")
-        return JsonResponse({"error": "Content cannot be empty."}, status=400)
-    messages.error(request, "POST request required.")
-    return JsonResponse({"error": "POST request required."}, status=400)
-
-
 def all_posts(request):
     posts = Post.objects.all().order_by("-timestamp")
-    paginator = Paginator(posts, 10)  # 10 posts per page
-    page_number = request.GET.get("page", 1)
-    page_obj = paginator.get_page(page_number)
+    print(posts)
+    posts_json = Post.objects.all().values()
+    print(posts_json)
+    print(" ------------------- ")
+    posts_serialize = [post.serialize() for post in posts]
+    print(posts_serialize)
+    print(" ------       --------       ----- ")
+    users = User.objects.all()
+    print(users)
+    users_json = User.objects.all().values()
+    print(users_json)
+    # paginator = Paginator(posts, 10)  # 10 posts per page
+    # page_number = request.GET.get("page", 1)
+    # page_obj = paginator.get_page(page_number)
 
-    return render(request, "network/index.html", {
+    return render(request, "network/all_posts.html", {
         "posts": posts
     })
+
 
     # return JsonResponse({
     #     "posts": [{

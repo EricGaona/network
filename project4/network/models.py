@@ -17,6 +17,13 @@ class Post(models.Model):
     def __str__(self):
         return f"{self.user.username} - {self.content[:30]}"
 
+    def serialize(self):
+        return {
+            "id": self.id,
+            "user": self.user.username,
+            "content": self.content,
+        }
+
 class Follow(models.Model):
     follower = models.ForeignKey(User, on_delete=models.CASCADE, related_name="following")
     followed = models.ForeignKey(User, on_delete=models.CASCADE, related_name="followers")

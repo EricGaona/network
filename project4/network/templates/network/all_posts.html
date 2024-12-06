@@ -1,0 +1,27 @@
+{% extends "network/layout.html" %}
+
+{% block body %}
+    <div  class="container">
+
+   
+    TODO
+    <h1>All Posts</h1>
+
+    <div id="posts-container">
+        <h3>Showing the Posts</h3>
+      {% for post in posts %}
+      <div class="card">
+        <h5 class="card-header">{{post.user.username}}</h5>
+        <div class="card-body">
+            <p class="card-text">{{post.content}}</p>
+          <h5 class="card-title">{{post.like_count}}</h5>
+          <button></button>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    </div>
+
+{% endblock %}
+
+
