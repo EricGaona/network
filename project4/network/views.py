@@ -102,7 +102,6 @@ def all_posts(request):
         "posts": posts
     })
 
-
     # return JsonResponse({
     #     "posts": [{
     #         "id": post.id,
@@ -114,7 +113,6 @@ def all_posts(request):
     #     "has_next": page_obj.has_next(),
     #     "has_previous": page_obj.has_previous(),
     # })
-
 
 def profile(request, username):
     user = User.objects.get(username=username)
@@ -146,6 +144,30 @@ def follow_unfollow(request, username):
             follow = Follow.objects.filter(follower=request.user, followed=user_to_follow)
             follow.delete()
     return HttpResponseRedirect(reverse("profile_page", args=(username,)))
+
+@login_required
+def following(request, username):
+    user = User.objects.get(username=username)
+    following_users = user.following.values_list('followed', flat=True)
+    posts = Post.objects.filter(user__id__in=following_users).order_by("-timestamp")
+    # print(f"SOY user ----- >>> {user}")
+    # user_following = user.following.all()
+    # print(f"SOY user_following ----- >>> {user_following}")
+    # posts = Post.objects.all().order_by("-timestamp")
+    # print(f"SOY posts ----- >>> {posts}")
+    # posts1 = user.posts.all().order_by("-timestamp")
+    # posts = user_following.posts.all().order_by("-timestamp")
+
+
+    return render(request, "network/following.html", {
+        "posts": posts,
+    })
+
+
+
+
+
+
 
 
 @login_required

@@ -3,11 +3,10 @@
 {% block body %}
     <div  class="container">
 
-    TODO
-    <h1>All Posts</h1>
-
+    
+    <h1>Following</h1>
+    <h1>{{ user_following }}</h1>
     <div id="posts-container">
-        <h3>Showing the Posts</h3>
       {% for post in posts %}
       <div class="card my-2">
         <a href="{% url 'profile_page' post.user.username %}">
@@ -26,5 +25,3 @@
     </div>
 
 {% endblock %}
-
-

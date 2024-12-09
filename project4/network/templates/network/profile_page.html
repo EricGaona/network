@@ -16,14 +16,16 @@
           <h4>Followers: {{ total_followers }}</h4>
           <h4>Following: {{ total_following }}</h4>
         </div>
-          <form action="{% url 'follow_unfollow' user_profile %}">
-           {% csrf_token %} 
-            {% if is_following %}
-           <button type="submit" class="btn btn-primary">Unfollow</button>
-            {% else %}
-           <button type="submit" class="btn btn-primary">Follow</button>
-           {% endif %}
-          </form>
+          {% if user.is_authenticated %}
+            <form action="{% url 'follow_unfollow' user_profile %}">
+            {% csrf_token %} 
+              {% if is_following %}
+            <button type="submit" class="btn btn-primary">Unfollow</button>
+              {% else %}
+            <button type="submit" class="btn btn-primary">Follow</button>
+            {% endif %}
+            </form>
+          {% endif %}
         {% endif %}
 
       {% for post in posts %}
