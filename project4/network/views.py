@@ -9,6 +9,10 @@ from django.contrib import messages
 
 from .models import User, Post, Follow
 
+from django.views.decorators.csrf import csrf_exempt
+
+import json
+
 
 def index(request):   
     if request.method == "POST":
@@ -19,12 +23,12 @@ def index(request):
             return HttpResponseRedirect(reverse("index"))
 
     posts = Post.objects.all().order_by("-timestamp")
-    # paginator = Paginator(posts, 10)  # 10 posts per page
-    # page_number = request.GET.get("page", 1)
-    # page_obj = paginator.get_page(page_number)
+    paginator = Paginator(posts, 10)
+    page_number = request.GET.get("page")
+    list_posts = paginator.get_page(page_number)
 
     return render(request, "network/index.html", {
-        "posts": posts
+        "posts": list_posts,
     })
 
 
@@ -83,6 +87,10 @@ def register(request):
 
 def all_posts(request):
     posts = Post.objects.all().order_by("-timestamp")
+    paginator = Paginator(posts, 10)
+    page_number = request.GET.get("page")
+    list_posts = paginator.get_page(page_number)
+
     print(posts)
     posts_json = Post.objects.all().values()
     print(posts_json)
@@ -99,20 +107,9 @@ def all_posts(request):
     # page_obj = paginator.get_page(page_number)
 
     return render(request, "network/all_posts.html", {
-        "posts": posts
+        "posts": list_posts,
     })
 
-    # return JsonResponse({
-    #     "posts": [{
-    #         "id": post.id,
-    #         "content": post.content,
-    #         "timestamp": post.timestamp,
-    #         "user": post.user.username,
-    #         "likes": post.like_count()
-    #     } for post in page_obj.object_list],
-    #     "has_next": page_obj.has_next(),
-    #     "has_previous": page_obj.has_previous(),
-    # })
 
 def profile(request, username):
     user = User.objects.get(username=username)
@@ -145,11 +142,15 @@ def follow_unfollow(request, username):
             follow.delete()
     return HttpResponseRedirect(reverse("profile_page", args=(username,)))
 
+
 @login_required
-def following(request, username):
-    user = User.objects.get(username=username)
+def following(request):
+    user = User.objects.get(username=request.user.username)
     following_users = user.following.values_list('followed', flat=True)
     posts = Post.objects.filter(user__id__in=following_users).order_by("-timestamp")
+    paginator = Paginator(posts, 10)
+    page_number = request.GET.get("page")
+    list_posts = paginator.get_page(page_number)
     # print(f"SOY user ----- >>> {user}")
     # user_following = user.following.all()
     # print(f"SOY user_following ----- >>> {user_following}")
@@ -158,16 +159,9 @@ def following(request, username):
     # posts1 = user.posts.all().order_by("-timestamp")
     # posts = user_following.posts.all().order_by("-timestamp")
 
-
     return render(request, "network/following.html", {
-        "posts": posts,
+        "posts": list_posts,
     })
-
-
-
-
-
-
 
 
 @login_required
@@ -178,3 +172,24 @@ def like_unlike(request, post_id):
         return JsonResponse({"message": "Unliked successfully.", "like_count": post.like_count()})
     post.likes.add(request.user)
     return JsonResponse({"message": "Liked successfully.", "like_count": post.like_count()})
+
+
+@login_required
+@csrf_exempt
+def edit_post(request, post_id):
+    if request.method == "PUT":
+        try:
+            post = Post.objects.get(id=post_id, user=request.user)  # Ensure user owns the post
+        except Post.DoesNotExist:
+            return JsonResponse({"error": "Post not found or you do not have permission to edit this post."}, status=403)
+
+        data = json.loads(request.body)
+        new_content = data.get("content", "")
+
+        if new_content.strip() == "":
+            return JsonResponse({"error": "Post content cannot be empty."}, status=400)
+
+        post.content = new_content
+        post.save()
+        return JsonResponse({"message": "Post updated successfully.", "content": post.content}, status=200)
+    return JsonResponse({"error": "PUT request required."}, status=400)

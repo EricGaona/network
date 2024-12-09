@@ -26,10 +26,45 @@
         <div id="posts-container">
             <h3>Showing the Posts</h3>
             {% for post in posts %}
-                <ul>
-                    <li>{{post.content}}</li>
-                </ul>
-            {% endfor %}
+      <div class="card my-2 post" data-post-id="{{ post.id }}">
+        <a href="{% url 'profile_page' post.user.username %}">
+          <h5 class="card-header">{{post.user.username}}</h5>
+        </a>
+        
+        <div class="card-body">
+            <div class="post-content">
+                <p class="card-text">{{post.content}}</p>
+                <h6 class="card-title">{{post.timestamp}}</h6>
+                <h5 class="card-title">Likes: {{post.like_count}}</h5>
+            </div>
+            
+          
+          {% if user.is_authenticated %}
+          <button class="btn btn-primary">Likes</button><br>
+            {% if user.username == post.user.username %}
+                <button class="btn btn-primary mt-2 edit-button">Edit</button>
+            {% endif%}
+          {% endif%}
+        </div>
+      </div>
+      {% endfor %}
+      <div class="pagination">
+        <span class="step-links">
+            {% if posts.has_previous %}
+                <a href="?page=1">&laquo; first</a>
+                <a href="?page={{ posts.previous_page_number }}">previous</a>
+            {% endif %}
+    
+            <span class="current">
+                Page {{ posts.number }} of {{ posts.paginator.num_pages }}.
+            </span>
+    
+            {% if posts.has_next %}
+                <a href="?page={{ posts.next_page_number }}">next</a>
+                <a href="?page={{ posts.paginator.num_pages }}">last &raquo;</a>
+            {% endif %}
+        </span>
+    </div>
         </div>
     </div>
 <!-- 
