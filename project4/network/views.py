@@ -120,32 +120,32 @@ def profile(request, username):
     user = User.objects.get(username=username)
     posts = user.posts.all().order_by("-timestamp")
     is_following = request.user.is_authenticated and user.followers.filter(follower=request.user).exists()
-    
-    return JsonResponse({
-        "username": user.username,
-        "followers_count": user.followers.count(),
-        "following_count": user.following.count(),
-        "posts": [{
-            "id": post.id,
-            "content": post.content,
-            "timestamp": post.timestamp,
-            "likes": post.like_count()
-        } for post in posts],
-        "is_following": is_following
+    total_followers = user.followers.count()
+    total_following = user.following.count()
+
+    return render(request, "network/profile_page.html", {
+        "user_profile": user,
+        "posts": posts,
+        "is_following": is_following,
+        "total_followers": total_followers,
+        "total_following": total_following,
     })
 
 
 @login_required
 def follow_unfollow(request, username):
     user_to_follow = User.objects.get(username=username)
-    if user_to_follow == request.user:
-        return JsonResponse({"error": "You cannot follow yourself."}, status=400)
+    is_following = request.user.is_authenticated and user_to_follow.followers.filter(follower=request.user).exists()
+    #total_followers = user_to_follow.followers.count()
 
-    follow_obj, created = Follow.objects.get_or_create(follower=request.user, followed=user_to_follow)
-    if not created:
-        follow_obj.delete()
-        return JsonResponse({"message": "Unfollowed successfully."})
-    return JsonResponse({"message": "Followed successfully."})
+    if user_to_follow != request.user:
+        if not is_following:
+            follow = Follow(follower=request.user, followed=user_to_follow)
+            follow.save()
+        else:
+            follow = Follow.objects.filter(follower=request.user, followed=user_to_follow)
+            follow.delete()
+    return HttpResponseRedirect(reverse("profile_page", args=(username,)))
 
 
 @login_required

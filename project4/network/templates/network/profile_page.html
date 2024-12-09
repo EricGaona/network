@@ -1,0 +1,45 @@
+{% extends "network/layout.html" %}
+
+{% block body %}
+    <div  class="container">
+
+    <div id="posts-container">
+      {% if user.username == user_profile.username %}
+        <div>
+          <h4>Followers: {{ total_followers }}</h4>
+          <h4>Following: {{ total_following }}</h4>
+        </div>
+        {% else %}
+
+        <h1>Profile page of: <strong>{{ user_profile }}</strong> </h1>
+        <div>
+          <h4>Followers: {{ total_followers }}</h4>
+          <h4>Following: {{ total_following }}</h4>
+        </div>
+          <form action="{% url 'follow_unfollow' user_profile %}">
+           {% csrf_token %} 
+            {% if is_following %}
+           <button type="submit" class="btn btn-primary">Unfollow</button>
+            {% else %}
+           <button type="submit" class="btn btn-primary">Follow</button>
+           {% endif %}
+          </form>
+        {% endif %}
+
+      {% for post in posts %}
+      <div class="card my-2">
+        <h5 class="card-header">{{post.user.username}}</h5>
+        <div class="card-body">
+            <p class="card-text">{{post.content}}</p>
+          <h5 class="card-title">Likes: {{post.like_count}}</h5>
+          <button class="btn btn-primary">Likes</button>
+
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    </div>
+
+{% endblock %}
+
+

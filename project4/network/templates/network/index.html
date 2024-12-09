@@ -2,40 +2,36 @@
 
 {% block body %}
     <div  class="container">
+        <h1>All Posts</h1>
+        {% if user.is_authenticated %}
+            <div id="compose-view" class="border border-1 p-2 mb-2 rounded">
+                <h3>New Post</h3>
+                <form id="compose-form" action="/" method="POST">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <textarea rows="5 " name="content" class="w-100"></textarea>
+                    </div>
+                    <button class="btn btn-primary" type="submit">Post</button>
+                    {% if messages %}
+                        <ul>
+                            {% for message in messages %}
+                                <li class="{% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </form>
+            </div>
+        {% endif %}
 
-   
-    TODO
-    <h1>All Posts</h1>
-
-    <div id="compose-view" class="border border-1 p-2 mb-2 rounded">
-        <h3>New Post</h3>
-        <form id="compose-form" action="/" method="POST">      
-            {% csrf_token %}     
-            <div class="form-group">
-                <textarea rows="5 " name="content" class="w-100"></textarea>
-            </div>        
-            <button class="btn btn-primary" type="submit">Post</button>
-            {% if messages %}
-    <ul>
-        {% for message in messages %}
-            <li class="{% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</li>
-        {% endfor %}
-    </ul>
-  {% endif %}
-        </form>
+        <div id="posts-container">
+            <h3>Showing the Posts</h3>
+            {% for post in posts %}
+                <ul>
+                    <li>{{post.content}}</li>
+                </ul>
+            {% endfor %}
+        </div>
     </div>
-
-
-    <div id="posts-container">
-        <h3>Showing the Posts</h3>
-      {% for post in posts %}
-        <ul>
-            <li>{{post.content}}</li>
-        </ul>
-      {% endfor %}
-    </div>
-
-
 <!-- 
 <div id="pagination">
     <button id="previous" disabled>Previous</button>
@@ -98,6 +94,7 @@ document.addEventListener("DOMContentLoaded", () => {
     loadPosts();
 });
 </script> -->
+
 {% endblock %}
 
 
