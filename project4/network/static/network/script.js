@@ -1,21 +1,44 @@
 document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll(".edit-button").forEach(button => {
         button.addEventListener("click", function() {
-            const postDiv = this.closest(".post");
-            const postId = postDiv.dataset.postId;
-            const postContentSpan = postDiv.querySelector(".card-text");
-            const originalContent = postContentSpan.textContent;
+           const idPost = button.dataset.postId;
+           console.log(idPost);
+        //    const post = document.getElementById(`post-${idPost}`);
+           const post = document.getElementById("post-"+idPost);
+           const content = post.querySelector(".post-content");
+           content.classList.add("d-none");
 
-            // Replace content with textarea
-            const textarea = document.createElement("textarea");
-            textarea.classList.add("w-100");
-            textarea.value = originalContent;
-            postContentSpan.replaceWith(textarea);
+           const contentEdit = post.querySelector(".post-edit");
+           contentEdit.classList.remove("d-none");
+           button.classList.add("d-none");
 
-            // Change "Edit" button to "Save"
-            this.textContent = "Save";
-            this.classList.remove("edit-button");
-            this.classList.add("save-button");
+           const contenCurrent = content.querySelector(".card-text").textContent;
+           console.log(contenCurrent);
+           const newContent = contentEdit.querySelector(".edit-text");
+           newContent.value = contenCurrent;
+
+           const saveButton = post.querySelector(".save-text");
+           saveButton.addEventListener("click", function(){
+            fetch(`/edit-post/${idPost}`, {
+                        method: "PUT",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ content: newContent.value })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error) {
+                            alert(data.error);
+                            return;
+                        }
+                        const contentUpDated = data.content;
+                        const elementContent = content.querySelector(".card-text");
+                        elementContent.textContent = contentUpDated;
+                        content.classList.remove("d-none");
+                        contentEdit.classList.add("d-none");
+                        button.classList.remove("d-none");
+                        
+                        });
+           })
 
             // Handle "Save" button click
             // this.addEventListener("click", function() {

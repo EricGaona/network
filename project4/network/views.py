@@ -102,9 +102,6 @@ def all_posts(request):
     print(users)
     users_json = User.objects.all().values()
     print(users_json)
-    # paginator = Paginator(posts, 10)  # 10 posts per page
-    # page_number = request.GET.get("page", 1)
-    # page_obj = paginator.get_page(page_number)
 
     return render(request, "network/all_posts.html", {
         "posts": list_posts,
